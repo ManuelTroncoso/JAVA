@@ -1,0 +1,351 @@
+SPRING
+------
+
+ALGO GENERAL.
+=============
+
+Es un framework que presenta un contenedor de inversion de control. se basa en una API de JAVA Reflexión.
+Funciona como inyección de dependencia.
+
+Gracias a SPRING podremos crear código desacoplado gracias a su uso de interfaces y trabaja con el patron de IoC (Inversion de control).
+La inversion de control se resumen como el principio de hollywood, no nos llames nosotros te llamamos.
+
+Lo que se usa mas son las inyecciones de dependencias, esto es un patron de diseño y su objetivo es mantener un codigo facil de mantener y desacoplado.
+
+Hay 3 forma de hacer la inyeccion.
+    - Constructor
+    - Propiedad (set)
+    - Servicio o interfaz
+
+Spring core container es un concepto clave, no es necesario tener un container para la inversion de control pero es recomendable por que te permite gestionar de mejor manera el
+ciclo de vida de los objetos, 
+    - Crearlo
+    - Enlazarlo
+    - Configurarlo
+    - Destruirlos
+
+Ventajas: 
+    - Flexibilidad para la integración de otras herramientas.
+    - Código ordenador
+    - Use de anotaciones
+    - Inyeccion de dependencias
+    - Estandares de programación
+
+CREAR UN PROYECTO SPTING
+========================
+New > maven project> maven-archetype-quickstart> next> finally.
+
+Pom.xml añadir la dependencia de spring.
+Click right > maven > cleanMave
+Click right > maven > installMaven
+Definir las clases en un contenedor.
+ClickRight> property> buildPath> select src> new folder> main/resource
+ClickRight in main/resource> new> other> springBuildConfigurationFile> beans> create (en caso de que no aparezca crear un .xml con los namespace de spring )
+
+
+
+
+INYECCIÓN DE INDEPENDECIAS.
+=========================== 
+Es un subtipo de la inverion de control.
+
+EJEMPLO
+
+*Tenemos un jugador de futbol el cual pertenece a un equipo de futbol, pero no le hemos dicho a que equipo pertenece*
+
+public class Messi {
+    private IEquipo equipo;
+
+    public Messi  (IEquipo equipo)
+    {
+        this.equipo = equipo;
+    }
+
+    //Tambien podriamos tener un metodo set para añadir el equipo
+    public void setEquipo (IEquipo equipo)
+    {
+        this.equipo = equipo;
+    }
+
+    public void mostrarEquipo()
+    {
+        equipo.mostrar();
+    }
+}
+
+*Por otro lado tenemos las interfaz de equipo, esta sera implementada por todos los equipos de futbol*
+
+public interface IEquipo
+{
+    public void mostrar();
+}
+
+*Y por otro, tenemos el equipo al que pertenece actualmente el jugador, siendo este equipo una clase que implementa la interfaz de IEquipo, de manera que 
+pasaría a ser general y la podriamos usar con cualquier equipo.*
+
+public class Barcelona implements IEquipo {
+
+    public void mostrar()
+    {
+        System.out.println("BARCELONA FC");
+    }
+}
+
+
+*Para crear a mesi se haria de la siguiente manera: *
+Messi m = new messi (new Barcelona()):
+//m.setEquipo (new Barcelona());
+m.mostrarEquipo();
+
+
+Messi ms = new messi (new Juventud()):
+//ms.setEquipo (new Juventud());
+ms.mostrarEquipo();
+
+*Ademas del equipo Messi tambien puede tener de dependencia una camiseta, calzonas, espinilleras, botas o medias, para eso utilizaremos SPRING CONTAINER*
+
+Inyeccion por anotaciones
+=========================
+Se puede inyectar los valores a traves de dos formas:
+    - Atraves del archivo beans.xml
+        * Valor por defecto se define asi: 
+            <bean id="mundo" class="com.springTest.beans.Mundo">
+		        <property name="saludo" value="Hola mundo"></property>
+	        </bean>
+
+        * Y desde la clase principal:
+            ApplicationContext appContext = new ClassPathXmlApplicationContext("com/springTest/xml/beans.xml");
+            Mundo m = (Mundo) appContext.getBean("mundo");
+            // Otra forma de llamarlo
+            // Mundo m = appContext.getBean(Mundo.class);
+            // Y lo pintamos    
+            System.out.println(m.getSaludo());
+
+    - Atraves del AppConfig y la clase del objeto
+        * Valor por defecto se define así, dentro de la clase del objeto:
+            @Value("Hola mundo!")
+            private String saludo;
+        
+        * Y desde la clase principal
+            ApplicationContext appContext2 = new AnnotationConfigApplicationContext(AppConfig.class);
+		    Mundo m2 = (Mundo) appContext2.getBean("mundo");
+		    //Mundo m2 = appContext.getBean(Mundo.class);
+		    System.out.println(m2.getSaludo());
+        
+
+Inyeccion por Constructor
+=========================
+Otra forma de inyectar los valores por defectos es a traves de un Constructor:
+    - Primero crearemos la clase y dentro de ella crearemos el/los constructor/es que necesitaremos y a los cuales le pasaremos algunos o todos los valores dependiendo del caso 
+    que vayamos a programar.
+        
+        *EJEMPLO
+            public Persona(int id, String nombre, String apodo) {
+                this.id = id;
+                this.nombre = nombre;
+                this.apodo = apodo;
+            }
+
+            public Persona(int id) {
+                this.id = id;
+            }
+            
+    - Y dentro del archivo beans.xml añadiremos los valores por defecto.
+        * EJEMPLO
+            <bean id="persona" class="com.springTest.beans.Persona">
+                <constructor-arg value="1" />
+                <constructor-arg value="Manuel" />
+                <constructor-arg value="Calcu" />
+            </bean>
+
+            <bean id="persona2" class="com.springTest.beans.Persona">
+                <constructor-arg type="int" value="2" />
+            </bean>
+    
+    - Dentro del 'constructor-arg' podemos añadirle el index o el tipo de valor que le vamos a pasar.
+        * type="String", type="int"
+        * index="0" --> me lo pintaria dentro del campo id
+
+Inyeccion por Objeto
+====================
+Una forma diferente de inyectar los valores por defecto es a traves de un objeto:
+    - Si tengo una clase dentro de otra clase, se llama igual que en el ejemplo anterior solo que con algunas diferencias:
+          <bean id="Persona" class="com.springTest.beans.Persona">
+                <property name="Pais" ref="pais" /> <!-- En este caso añadimos la referencia no el valor del pais, ya que la clase esta abajo creada como un beans donde si tendrá los valores. -->
+                <constructor-arg value="1" />
+                <constructor-arg value="Manuel" />
+                <constructor-arg value="Calcu" />
+            </bean>
+
+            <bean id="pais" class="com.springTest.beans.Pais">
+                <property name="nombre" value="Peru" />
+            </bean>
+
+    - Cuando se le indica el nombre del campo pasa a llamarse property sino sera un constructor-arg.
+    - Para obtener los valores debemos de contcatenar los todo los get. ... new persona.getNombre() + new persona.getPais().getNombre()...
+
+Beans
+=====
+Se puede hacer referencia a un beans de diferentes maneras:
+    - Usando el id propio del bean <bean id="persona" ..../> *ES EL MAS COMÚN*
+    - Usando el name de la etiqueita bean, <bean ... name="personaBean">
+    - A traves de un alias, <aleas name="persona" alias="personaBean"/>
+    
+Colecciones
+===========
+Si una clase tiene una lista de objeto se añade de la siguiente manera:
+    - Dentro de la propiedad añadimos la etiquieta y desde ahi hacemos referencia a las ciudades.
+    * EJEMPLO 
+        <property name="ciudades">
+			<list>
+				<ref bean="ciudad1"></ref>
+				<ref bean="ciudad2"></ref>
+				<ref bean="ciudad3"></ref>
+			</list>
+		</property>
+
+        <bean id="ciudad1" class="com.springTest.beans.Ciudad">
+		    <property name="nombre" value="Lima"></property>
+	    </bean>
+
+        <bean id="ciudad2" class="com.springTest.beans.Ciudad">
+            <property name="nombre" value="Piura"></property>
+        </bean>
+
+        <bean id="ciudad3" class="com.springTest.beans.Ciudad">
+            <property name="nombre" value="Chiclayo"></property>
+        </bean>
+
+
+Autowired
+========
+Para tema de automatización, no se suele usar.
+      
+Scope
+=====
+    *EJEMPLO*
+
+        <bean id="persona" class="com.springTest.beans.Persona" scope="singleton">
+            <constructor-arg value="1" />
+            <constructor-arg value="Manuel" />
+            <constructor-arg value="Calcu" />
+        </bean>
+
+        <bean id="persona2" class="com.springTest.beans.Persona" scope="prototype">
+            <constructor-arg type="int" value="2" />
+        </bean>
+
+    - Singleton: hace referencia al mismo objeto, cuando los creas en el código.
+        *EJEMPLO*
+            Persona per = (Persona) appContext.getBean("persona");
+            System.out.println(per.getId() + " " + per.getNombre() + " " + per.getApodo());
+            
+            Persona per2 = (Persona) appContext.getBean("persona2");
+            System.out.println(per2.getId() + " " + per2.getNombre() + " " + per2.getApodo());
+        
+        Si modifico uno cambia el otro.
+
+    - Prototype: hace referencia a un nuevo objeto, cuando los creas en el código. 
+        *EJEMPLO*
+            Persona per = (Persona) appContext.getBean("persona");
+            System.out.println(per.getId() + " " + per.getNombre() + " " + per.getApodo());
+                
+            Persona per2 = (Persona) appContext.getBean("persona2");
+            System.out.println(per2.getId() + " " + per2.getNombre() + " " + per2.getApodo());
+        
+        Si modifico per, per2 no se verá afectado ni sufrirá ningún cambio en los valores.
+
+lazy-init
+=========
+    - los objetos que tengan lazy-init="true", no creara el objeto hasta que no se requiera en el getBean("X"), es mas para el tema de rendimiento que para otra cosa.
+    - Con el BeanFactory pasarian a ser todos los beans de manera lazy-init.
+
+Ciclo de vida de los Beans
+==========================
+    - Crear dentro de la etiquieta bean la propiedad init-method y destroy-method, <bean ... init-method="init" destroy-method="destroy">, entre las comillas va el nombre del metodo que creamos en la clase,
+        class x
+        {
+            public void init()
+            {
+                //para iniciar.
+            }
+
+            public void destroy()
+            {
+                //para destruirlo.
+            }
+        }
+    
+    - Pero hacerlo asi para todos los beans es un autentico coñazo asi que para aligerar esto se ha creado lo siguiente: 
+        * Dentro de la propiedad <beans>, la que contiene todos los metodos beans, se añade lo siguiente,
+         <beans default-init-method="x" default-destroy-method="x"/> de esta manera afecta a todos los beans por igual.
+
+PostConstruct y PreDestroy
+==========================
+
+    - Es lo mismo que vimos en el punto anterio solamente que en lugar de indicar el nombre del metodo se coloca dentro de la clase lo siguiente:
+        * PostConstruct:
+            Se coloca @PostConstruct justo encima del metodo que quiere que se ejecute cuando se inicializa el beans (similar al: init-method) 
+        
+        * PreDestroy:
+            Se coloca @PreDestroy justo encima del metodo que quiere que se ejecute antes de que finalice el beans (similar al: destroy-method) 
+        
+    - Pero para que esto funcione deberemos de colocar en la clase beans.xml lo siguiente:
+        <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
+
+Ciclo de vida de lo beans (Interfaces)
+======================================
+    - El resultado es el mismo que vimos en los putnos anterios pero en este caso deberemos de implementar las siguientes interfaces:
+        * InitalizingBean -> para inicializar el beans
+        * DisposableBeans -> para destruir el beans
+    - Una vez añadida se crea los metodos (ctrl+1> añadir metodos) que sean necesario para que funcione la interfaz.
+ 
+BeanPostProcessor
+=================
+    - Implementaremos la interfaz BeanPostProcessor y los metodo necesario, esto reciben dos parametros que son el bean y el nombre del bean
+      y crearemos nuestro porpio bean en la clase beans.xml que será: <bean class="nombre del paquete + nombre del archivo(com.mitrocode.beans.mitocodebeanspostprocessor)"
+
+Anotación Required
+==================
+    - Se coloca encima del metodo set de la variable @Required y se importa los paquete necesario.
+    - Si intentamos acceder a una instancia que no hemos declaro en el beans.xml nos aparecerá como null, pero... ¿como haremos que sea required?
+        * Se crea este bean en el beans.xml
+            <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
+        
+    -De esta forma ya podemos usar el required y nos aparecer el error de que es obligatorio.
+
+Autowired y Qualifier
+=====================
+    - https://www.youtube.com/watch?v=Li5L1uGTOqM&list=PLvimn1Ins-40CImsffjCkv_TrKzYiB1gb&index=20
+
+
+Stereotypes
+===========
+    - @Component, @Service, @Controller (TODO HACEN LO MISMO PERO SE UTILIZA EL QUE TOQUE SEGUN SEA UN COMPONENTE, UN SERVICIO O UN CONTROLADOR) encima de la clase .java es lo mismo que poner dentro de un beans la propiedades de los campos por lo que se puede eliminar todo el beans 
+    y se colocaria <context:component-scan base-package="se colocaria el paquete general ( por ejemplo: com.mitocode )" y el id de la clase pasaría a ser el nombre de la clase
+    o se podria colocar @Component ("NombreQueLeQueremosPoner")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

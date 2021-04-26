@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- Se puede usar este archivo el sino el archivo de AppConfig.java -->
+	<bean id="mundo" class="com.springTest.beans.Mundo">
+		<property name="saludo" value="Hola mundo"></property>
+	</bean>
+
+
+	<bean id="persona" class="com.springTest.beans.Persona" scope="singleton">
+		<constructor-arg value="1" />
+		<constructor-arg value="Manuel" />
+		<constructor-arg value="Calcu" />
+	</bean>
+
+	<bean id="persona2" class="com.springTest.beans.Persona" scope="prototype">
+		<constructor-arg type="int" value="2" />
+	</bean>
+
+	<bean id="persona3" class="com.springTest.beans.Persona">
+		<constructor-arg type="String" value="Calcu" />
+	</bean>
+
+	<bean id="persona4" class="com.springTest.beans.Persona">
+		<constructor-arg index="0" value="1" />
+		<constructor-arg index="2" value="Calcu" />
+		<constructor-arg index="1" value="Manu" />
+	</bean>
+
+	<bean id="persona5" class="com.springTest.beans.Persona">
+		<property name="id" value="01"></property>
+		<property name="nombre" value="Manu"></property>
+		<property name="apodo" value="Calcu"></property>
+		<property name="Pais">
+			<bean id="pais" class="com.springTest.beans.Pais">
+				<property name="Nombre" value="Peru"></property>
+				<property name="ciudades">
+					<list>
+						<ref bean="ciudad1"></ref>
+						<ref bean="ciudad2"></ref>
+						<ref bean="ciudad3"></ref>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="ciudad1" class="com.springTest.beans.Ciudad">
+		<property name="nombre" value="Lima"></property>
+	</bean>
+
+	<bean id="ciudad2" class="com.springTest.beans.Ciudad">
+		<property name="nombre" value="Piura"></property>
+	</bean>
+
+	<bean id="ciudad3" class="com.springTest.beans.Ciudad">
+		<property name="nombre" value="Chiclayo"></property>
+	</bean>
+
+
+</beans>
