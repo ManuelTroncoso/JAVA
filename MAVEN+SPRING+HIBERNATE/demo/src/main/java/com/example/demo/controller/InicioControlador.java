@@ -9,6 +9,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +26,15 @@ public class InicioControlador {
 	@Autowired
 	public ExampleService cs;
 
+	private static final Logger LOGGER = LogManager.getLogger(InicioControlador.class.getName());
 	@RequestMapping("/")
 	public String Index() {
-		return "<a href='/console'>haz click aqui para comenzar a introducir datos por la consola.</a>";
+
+		LOGGER.debug("Debug Message Logged !!!");
+        LOGGER.info("Info Message Logged !!!");
+        LOGGER.error("Error Message Logged !!!", new NullPointerException("NullError"));
+        
+	    return "<a href='/console'>haz click aqui para comenzar a introducir datos por la consola.</a>";
 	}
 
 	@RequestMapping("/console")

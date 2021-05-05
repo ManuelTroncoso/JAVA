@@ -8,9 +8,6 @@
 
 	<persistence-unit name="Persistencia">
 	
-		<class>com.springTest.ClasesParticulares.modelo.Alumnos</class>
-		<class>com.springTest.ClasesParticulares.modelo.Profesor</class>
-	
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test" />
