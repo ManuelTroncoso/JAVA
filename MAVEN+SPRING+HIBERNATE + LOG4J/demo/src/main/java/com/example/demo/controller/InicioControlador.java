@@ -5,16 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.TPersona;
@@ -25,56 +21,42 @@ public class InicioControlador {
 
 	@Autowired
 	public ExampleService cs;
-
+	public int i = 0;
 	private static final Logger LOGGER = LogManager.getLogger(InicioControlador.class.getName());
-	@RequestMapping("/")
-	public String Index() {
 
-		LOGGER.debug("Debug Message Logged !!!");
-        LOGGER.info("Info Message Logged !!!");
-        LOGGER.error("Error Message Logged !!!", new NullPointerException("NullError"));
-        
-	    return "<a href='/console'>haz click aqui para comenzar a introducir datos por la consola.</a>";
-	}
+	@RequestMapping("/addUser")
+	public String Index(@RequestParam String name, @RequestParam String surname) {
 
-	@RequestMapping("/console")
-	public String InsertInicial() throws IOException {
+//		LOGGER.debug("Debug Message Logged !!!");
+//        LOGGER.info("Info Message Logged !!!");
+//        LOGGER.error("Error Message Logged !!!", new NullPointerException("NullError"));
 
-		String respuesta = "s";
-		int i = 0;
-		boolean respuestaValida = true;
-		while (respuesta.equals("s")) {
-			System.out.println("Escribe el nombre del usuario");
-			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			String nombre = br.readLine();
+		if (!name.equals("") && !surname.equals("")) {
+			try {
+				InsertInicial(name, surname);
+				return "redirect:/index.html";
 
-			System.out.println("Indique el apellido");
-			String apellido = br.readLine();
-
-			TPersona p = new TPersona(i, nombre, apellido);
-
-			this.cs.Save(p);
-			i++;
-
-			while (respuestaValida) {
-				System.out.println("Quiere introducir algun usuario mas? s/n");
-				respuesta = br.readLine();
-
-				if (respuesta.equals("s") || respuesta.equals("n")) {
-					respuestaValida = false;
-				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-			respuestaValida = true;
-
 		}
-		
-		System.out.println("A continuacion se veran los usuarios por pantallas");
+		//Puesto a pelo para la prueba.
+		return "redirect:http://stackoverflow.com";
+	}
+	
+	@RequestMapping("/showUser")
+	public String InsertInicial(String nombre, String apellido) throws IOException {
+
+		TPersona p = new TPersona(i, nombre, apellido);
+
+		this.cs.Save(p);
+		i++;
 
 		List<TPersona> lp = (List<TPersona>) this.cs.FindAll();
 		String result = "";
-		for (TPersona p : lp) {
-			result += p.getId() + " " + p.getNombre() + " " + p.getApellido() + "</br>";
+		for (TPersona p1 : lp) {
+			result += p1.getId() + " " + p1.getNombre() + " " + p1.getApellido() + "</br>";
 
 		}
 		return result;
